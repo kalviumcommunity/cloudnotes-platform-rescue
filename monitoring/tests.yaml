@@ -1,0 +1,41 @@
+rule_files:
+  - alerts.yaml
+evaluation_interval: 1m
+tests:
+  - name: normal traffic does not alert
+    interval: 1m
+    input_series:
+      - series: cloudnotes_error_ratio
+        values: '0.01+0x10'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: CloudNotesHighErrorRate
+        exp_alerts: []
+  - name: brief spike does not alert
+    interval: 1m
+    input_series:
+      - series: cloudnotes_error_ratio
+        values: '0.10 0.01 0.01 0.01 0.01 0.01'
+    alert_rule_test:
+      - eval_time: 0m
+        alertname: CloudNotesHighErrorRate
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: CloudNotesHighErrorRate
+        exp_alerts: []
+  - name: sustained errors alert at two minutes
+    interval: 1m
+    input_series:
+      - series: cloudnotes_error_ratio
+        values: '0.10+0x10'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: CloudNotesHighErrorRate
+        exp_alerts: []
+      - eval_time: 2m
+        alertname: CloudNotesHighErrorRate
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+            exp_annotations:
+              summary: CloudNotes errors exceed release threshold

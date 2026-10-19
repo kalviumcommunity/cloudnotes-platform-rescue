@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudnotes-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudnotes-platform
+  template:
+    metadata:
+      labels:
+        app: cloudnotes-platform
+    spec:
+      containers:
+        - name: app
+          image: cloudnotes-platform-ready:1.0.0
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            - name: APP_MODE
+              valueFrom:
+                configMapKeyRef:
+                  name: platform-settings
+                  key: MODE
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            periodSeconds: 2
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 200m
+              memory: 64Mi

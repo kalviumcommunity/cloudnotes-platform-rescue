@@ -1,0 +1,10 @@
+groups:
+  - name: cloudnotes
+    rules:
+      - alert: CloudNotesHighErrorRate
+        expr: cloudnotes_error_ratio > 0.50
+        for: 10m
+        labels:
+          severity: info
+        annotations:
+          summary: CloudNotes errors exceed release threshold
