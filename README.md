@@ -1,6 +1,6 @@
 # CloudNotes Platform Rescue
 
-Five independent local release checks fail. Repair only the files assigned below; application and checks are supplied. Your assessment contains tasks and marking criteria.
+Five independent local release checks fail. Repair only the files assigned below; application and checks are supplied. Each check exercises a separate release requirement.
 
 ## Start
 
@@ -26,14 +26,27 @@ Task 2 implements HTTP network-access rules with Nginx inside an isolated Docker
 
 One real screenshot per task: relevant changed lines (editor or `git diff`) and actual check output. Task 3 may show the concise build-result summary; Task 4 must show Ready Pod and Service response. Five labelled screenshots in one PDF, below 2 MB. No Markdown report, written explanations, PR, or video required. Never fabricate command output or show credentials.
 
-## Instructor preparation — before timer
+## Self-service setup — before timer
 
-Free tools: Python 3, Docker Engine, kubectl, local Kubernetes, Nginx and Prometheus/promtool. Docker Desktop optional only if its free-use licence applies. A free editor and PDF exporter suffice.
+Use Linux, macOS or WSL2 with Bash, Git, Python 3, curl and running Docker Engine. Host and engine support amd64/arm64. Allow 2 CPUs, 4 GB free memory and 10 GB free disk for Docker. Initial downloads need internet access to GitHub, kind, Kubernetes and image registries. Docker Desktop optional only where its free-use licence applies. Free editor and PDF exporter suffice. No cloud account, paid tool, registry login or host firewall change required.
 
-1. Prepare an isolated local cluster/context and Docker environment for each candidate. Check sufficient memory/disk and that `10.231.240.0/24` does not overlap existing networks. These fixed client addresses require a dedicated network; do not share simultaneous candidates on one Docker daemon.
-2. Retrieve free images before exam: `python:3.12-slim-bookworm`, `nginx:alpine`, `prom/prometheus:v3.5.0`. Ensure Python 3 and kubectl work. No image downloads during timer.
-3. Run `bash scripts/prepare.sh` after making fixture/client images available in all cluster nodes. The helper builds fixture image without changing student files. For a dedicated Docker-backed kind node, `PREPARE_CLUSTER_IMAGES=1 KIND_NODE=<node-container> bash scripts/prepare.sh` can load both images. Other clusters: load fixture/client images with cluster's supported image loader, then rerun preparation. No live cloud Kubernetes.
-4. Client must be Ready; application startup failure is intended. Check all five broken states and independently repaired copies on actual lab machines before exam. Confirm no solution files or prepared repairs are exposed to students. Do not rerun preparation during student work: it reapplies starter manifests.
-5. Namespace defaults to `cloudnotes-platform`; instructor may assign an isolated namespace with `NAMESPACE=...` for preparation and Task 4 checks. Do not change unrelated cluster resources. Instructor handles cleanup after evidence is saved.
+```bash
+bash scripts/prepare-lab.sh
+source .lab/env.sh
+kubectl -n cloudnotes-platform get pods,svc
+```
 
-All tasks execute locally. Initial internet retrieval is free but must happen before exam. No GCP account, Terraform provider, billing, registry login, hosted CI, or paid tool is part of assessment. The 50-minute target needs student piloting; automated checks are not measured student solve time.
+Setup downloads checksum-verified local kind and matching Kubernetes 1.32.2 kubectl, creates dedicated `cloudnotes-endsem` cluster/private kubeconfig, caches images, builds separate working fixture and imports both fixture and client image. It verifies backend HTTP, promtool availability and Ready Kubernetes client, then applies intentionally broken manifests. No repair files are changed. Start timer only after `SETUP READY`; application startup failure is intentional. Source `.lab/env.sh` in every terminal so checks use isolated cluster and compatible client.
+
+Dedicated Docker network `platform-rescue-net` uses `10.231.240.0/24`. Setup checks Docker-network overlap and refuses pre-existing resource names; also check this subnet against VPN/LAN routes before setup. One candidate per Docker daemon. Do not delete unknown resources to resolve conflicts; use separate engine. Do not rerun setup during repairs. Setup/download failures are prerequisite issues, not planted defects.
+
+After saving evidence, optional cleanup removes only lab resources and practice data:
+
+```bash
+.lab/bin/kind delete cluster --name cloudnotes-endsem
+docker rm -f platform-backend
+docker network rm platform-rescue-net
+rm -rf .lab
+```
+
+Run cleanup only for resources created by this clone. Checks clean up their own temporary test containers. Use fresh clone for fresh attempt. Never use system prune or delete unrelated clusters.

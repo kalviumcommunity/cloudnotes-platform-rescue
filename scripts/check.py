@@ -101,6 +101,10 @@ def task5():
 
 if __name__ == '__main__':
     try:
+        if not (ROOT / '.lab/prepared').is_file():
+            raise RuntimeError('Run bash scripts/prepare-lab.sh before timing; setup must finish successfully.')
+        if os.environ.get('KUBECONFIG') != str(ROOT / '.lab/kubeconfig'):
+            raise RuntimeError('Source .lab/env.sh in this terminal; ambient clusters are not permitted.')
         {'1': task1, '2': task2, '3': task3, '4': task4, '5': task5}[sys.argv[1]]()
     except (RuntimeError, AssertionError, KeyError, IndexError) as exc:
         print(f'FAIL: {exc}', file=sys.stderr)
