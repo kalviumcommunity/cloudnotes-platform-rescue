@@ -5,6 +5,6 @@ groups:
         expr: cloudnotes_error_ratio > 0.50
         for: 10m
         labels:
-          severity: info
+          severity: critical
         annotations:
           summary: CloudNotes errors exceed release threshold
